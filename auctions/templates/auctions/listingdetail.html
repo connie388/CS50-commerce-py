@@ -1,0 +1,102 @@
+{% extends "auctions/layout.html" %} 
+{% load static %}
+{% block body %}
+<h2>Listing: {{listing.listing_name}}</h2>
+{% include 'auctions/alertmsg.html' %}
+
+{% if user.is_authenticated %}
+    {% if listing.user_created ==  request.user and listing.is_active %} 
+            <form method="POST" action="{% url 'close_listing' listingid=listing.id %}">
+                {% csrf_token %} 
+                <input type="submit" name="close_listing" value="Close Listing"/>     
+
+            </form>
+    {% endif %}
+{% endif %}
+
+{% if user.is_authenticated %}
+    <form method="POST" action="{% url 'listingwatch' listingid=listing.id %}">
+    {% csrf_token %} 
+
+        {% if listing in request.user.watchlist.all %} 
+            <input type="submit" name="watchlist" value="Remove From Watchlist"/>
+        {% else %}
+            <input type="submit" name="watchlist" value="Save as Watchlist"/>
+        {% endif %}
+    </form>
+{% endif %}
+
+{% if not listing.listing_image_url %}
+<img id="aimg" src="{% static 'img/no-picture-available.jpg' %}" alt="image"/> 
+{% else %}
+<img id="aimg" src="{{listing.listing_image_url}}" alt="image"/>
+{% endif %}
+
+<div>
+{{listing.description}}
+</div>
+
+<h3><label for price>$</label>{{listing.price}}</h3>
+
+
+<div>{{listing.bid_count}}<label>bid(s) so far.</label>
+
+{% if user.is_authenticated %}
+    {% if user.id == listing.currentbidby %}
+        {% if listing.is_active %}
+            <label> Your bid is the current bid.</label>
+        {% else %}
+            <h3>You won with bid ${{listing.price}}</h3>
+        {% endif %}
+    {% else %}
+        </div>
+
+        <form action="" method="POST">
+            {% csrf_token %} 
+            <div>
+                <input type="text" name="bid" placeholder="Bid"  value="{{ listing.price }}" min="{{ listing.price }}"/>
+            </div>
+            <div>
+                <input type="submit" name ="placebid" value="Place Bid" />
+            </div>
+        </form>
+    {% endif %}
+{% endif %}
+
+<h3>Details</h3>
+<div>
+    <ul>
+        <li><label>Listed by:</label> {{listing.user_created }}</li>
+        <li><label>Category:</label> {{listing.category.category_name}}</li>
+    </ul>
+</div>
+<h3>Comments</h3>
+{% if user.is_authenticated %}
+    <form action="" method="POST">
+        {% csrf_token %} 
+        <div>
+            <textarea name="comment" placeholder="Comment" rows=5 columns=50></textarea>
+            <input type="text" name="userid" value="{{user.id}}" hidden/>
+        </div>
+        <div>
+            <input type="submit" name="addcomment" value="add"/>
+        </div>
+    </form>
+{% endif %}
+    <table name="comment">
+        {% if commentlist.all.count > 0 %}
+        <tr> 
+            <th >Date Posted</th>
+            <th>By Person</th> 
+            <th >Comment</th> 
+        </tr>
+            {% for comment in commentlist %} 
+        <tr>                  
+                <td >{{ comment.date_created }}</td>
+                <td >{{ comment.person_posted }}</td>
+                <td >{{ comment.comment }}</td>
+            {% endfor %}
+        </tr>
+        {% endif %}
+    </table>
+{% endblock %}

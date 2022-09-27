@@ -1,0 +1,12 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Categories</h2>
+    {% include 'auctions/alertmsg.html' %}
+
+    {% for category in categories %}
+        <p><a href="{% url 'activelistings' name=category %}">{{ category.category_name }}</a></p>
+        <!-- <p><a href="/activelistings/{{category.id}}">{{ category.category_name }}</a></p> -->
+    {% endfor %}
+
+{% endblock %}

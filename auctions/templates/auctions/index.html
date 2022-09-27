@@ -1,0 +1,33 @@
+{% extends "auctions/layout.html" %} 
+{% load static %}
+{% block body %}
+<h2>{{title}}</h2>
+
+{% include 'auctions/alertmsg.html' %}
+{% if auctionlist %}
+  {% for listing in auctionlist %}
+    <div class="listing-container">
+     
+      <div id="photo_img">
+        {% if not listing.listing_image_url %}
+          <img id="aimg"  src="{% static 'img/no-picture-available.jpg' %}" alt="image"/> 
+        {% else %}
+          <img id="aimg" src="{{listing.listing_image_url}}" alt="image"/>
+        {% endif %}
+      </div>
+      
+      <div id="list">
+        {% if listing.is_active is False %}   
+          <h3>Closed Listing</h3>
+        {% endif %}
+        <h3><a href="{% url 'listingdetail' listingid=listing.id %}">{{ listing.listing_name }}</a></h3>
+        <h4><label>Price: $</label>{{ listing.price }}</h4>
+        <div><label>Created </label>{{ listing.date_created }} </div>
+        <div><a href="{% url 'category' name=listing.category %}">{{ listing.category.category_name}}</a></a></div>
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+    <p>No listings here yet.</p>
+{% endif %}
+{% endblock %}
